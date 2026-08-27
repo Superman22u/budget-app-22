@@ -1,0 +1,44 @@
+{
+  "name": "budget-app-22",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "parse:sample": "tsx scripts/try-parse.ts",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "@tanstack/react-table": "^8.21.3",
+    "csv-parse": "^5.6.0",
+    "next": "^15.5.2",
+    "pdfjs-dist": "^5.4.149",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "recharts": "^3.1.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "eslint": "^9.34.0",
+    "eslint-config-next": "^15.5.2",
+    "prisma": "6.19.3",
+    "tailwindcss": "^4.1.12",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

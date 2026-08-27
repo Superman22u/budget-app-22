@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceKind {
+  ubs
+  swisscard
+  viseca
+  liberty
+  unknown
+}
+
+enum Direction {
+  debit
+  credit
+}
+
+enum MatchType {
+  contains
+  regex
+}
+
+model ImportFile {
+  id           Int        @id @default(autoincrement())
+  filename     String
+  sourceKind   SourceKind
+  fileSha256   String     @unique
+  headerJson   Json?
+  importedAt   DateTime   @default(now())
+  insertedCount Int       @default(0)
+  skippedCount Int        @default(0)
+  errorCount   Int        @default(0)
+  transactions Transaction[]
+
+  @@map("import_files")
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  slug      String     @unique
+  parentId  Int?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  color     String?
+  sortOrder Int        @default(0)
+  transactions Transaction[]
+  rules     CategoryRule[]
+
+  @@map("categories")
+}
+
+model CategoryRule {
+  id         Int        @id @default(autoincrement())
+  matchType  MatchType
+  pattern    String
+  priority   Int        @default(100)
+  categoryId Int
+  category   Category   @relation(fields: [categoryId], references: [id])
+
+  @@map("category_rules")
+}
+
+model Transaction {
+  id           Int        @id @default(autoincrement())
+  sourceId     Int
+  source       ImportFile @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  bookingDate  DateTime   @db.Date
+  valueDate    DateTime?  @db.Date
+  currency     String     @db.VarChar(8)
+  amount       Decimal    @db.Decimal(14, 2)
+  amountChf    Decimal?   @db.Decimal(14, 2)
+  direction    Direction
+  description  String     @db.Text
+  merchant     String?   @db.Text
+  cardLabel    String?   @db.VarChar(128)
+  accountLabel String?   @db.VarChar(512)
+  externalId   String?   @db.VarChar(128)
+  fingerprint  String     @unique
+  categoryId   Int?
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  categoryLocked Boolean  @default(false)
+  rawJson      Json
+  createdAt    DateTime   @default(now())
+
+  @@index([bookingDate])
+  @@index([sourceId])
+  @@index([categoryId])
+  @@index([externalId])
+  @@map("transactions")
+}
